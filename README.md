@@ -1,5 +1,7 @@
 # wakeonweb
 
+<img alt="Screenshot of the hosted web page" align="right" width="300px" src="screenshot.png">
+
 Runs a web server on a NodeMCU or similar to remote control a PC's power button. The microcontroller triggers the power button using a transistor, measures the power state by connecting to the `PWR LED` and provides an endpoint for the controlled device to signal SSH availability.
 
 ## Connecting to the motherboard
