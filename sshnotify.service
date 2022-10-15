@@ -1,0 +1,9 @@
+[Unit]
+Description=Notifies a server once SSH is ready
+After=sshd.service
+
+[Service]
+ExecStart=curl 10.0.0.123/s
+
+[Install]
+WantedBy=multi-user.target
