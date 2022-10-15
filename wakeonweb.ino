@@ -138,7 +138,14 @@ void reply()
     {
       client.println("<p>SSH ready: NO</p>");
     }
-    client.println("<form action=\"/t\"><input type=\"submit\" value=\"Power on\"></form>");
+    if (pwr)
+    {
+      client.println("<form action=\"/t\"><input type=\"submit\" value=\"Power on\" disabled></form>");
+    }
+    else
+    {
+      client.println("<form action=\"/t\"><input type=\"submit\" value=\"Power on\"></form>");
+    }
     client.println("</body></html>");
     client.println();
     return;
