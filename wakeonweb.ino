@@ -118,34 +118,31 @@ void reply()
     client.println("html{min-height:100%;display:flex;justify-content:space-around;align-items:center;background:#0d0d0d;}");
     client.println("body{height:fit-content;margin:0px;padding:1.2em 1.5em 1.5em 1.5em;font:1em sans-serif;background:white;border-radius:1em;}");
     client.println("h1{margin-top:0px;}");
+    client.println(".state{padding:0.2em 0.8em;background:#6c6c6c;color:white;border-radius:1em;}");
+    client.println(".state.pwron,.state.sshyes{background:#008a3c;}.state.pwroff,.state.sshno{background:#b30000;}");
     client.println("</style>");
-    client.println("<title>Server Control</title>");
-    client.println("</head><body>");
-    client.println("<h1>Server Control</h1>");
     if (pwr)
     {
-      client.println("<p>Power state: ON</p>");
+      client.println("<style>.pwroff{display:none}</style>");
     }
     else
     {
-      client.println("<p>Power state: OFF</p>");
+      client.println("<style>.pwron{display:none}</style>");
     }
     if (ssh)
     {
-      client.println("<p>SSH ready: YES</p>");
+      client.println("<style>.sshno{display:none}</style>");
     }
     else
     {
-      client.println("<p>SSH ready: NO</p>");
+      client.println("<style>.sshyes{display:none}</style>");
     }
-    if (pwr)
-    {
-      client.println("<form action=\"/t\"><input type=\"submit\" value=\"Power on\" disabled></form>");
-    }
-    else
-    {
-      client.println("<form action=\"/t\"><input type=\"submit\" value=\"Power on\"></form>");
-    }
+    client.println("<title>Server Control</title>");
+    client.println("</head><body>");
+    client.println("<h1>Server Control</h1>");
+    client.println("<p>Power state: <span class=\"state pwroff\">OFF</span><span class=\"state pwron\">ON</span></p>");
+    client.println("<p>SSH ready: <span class=\"state sshno\">NO</span><span class=\"state sshyes\">YES</span></p>");
+    client.println("<form action=\"/t\"><input class=\"pwroff\" type=\"submit\" value=\"Power on\"><input class=\"pwron\" type=\"submit\" value=\"Power on\" disabled></form>");
     client.println("</body></html>");
     client.println();
     return;
