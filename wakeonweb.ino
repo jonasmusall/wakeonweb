@@ -114,6 +114,11 @@ void reply()
     client.println("<!DOCTYPE html><html><head>");
     client.println("<meta charset=\"utf-8\">");
     client.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+    client.println("<style>");
+    client.println("html{min-height:100%;display:flex;justify-content:space-around;align-items:center;background:#0d0d0d;}");
+    client.println("body{height:fit-content;margin:0px;padding:1.2em 1.5em 1.5em 1.5em;font:1em sans-serif;background:white;border-radius:1em;}");
+    client.println("h1{margin-top:0px;}");
+    client.println("</style>");
     client.println("<title>Server Control</title>");
     client.println("</head><body>");
     client.println("<h1>Server Control</h1>");
