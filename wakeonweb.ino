@@ -52,7 +52,6 @@ void setup()
   Serial.println("Connected");
   Serial.println(WiFi.localIP());
 
-  server.keepAlive(false);
   server.on("/", handleRoot);
   server.on("/main.css", handleMainStylesheet);
   server.on("/state.css", handleStateStylesheet);
