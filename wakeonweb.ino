@@ -2,9 +2,6 @@
 #include <ESP8266WebServer.h>
 #include "credentials.h"
 
-#define TIMEOUT_MS 2000
-#define REQUEST_RECORD_LEN 6
-
 ESP8266WebServer server(80);
 const char bodyRoot[] PROGMEM =
     "<!DOCTYPE html><html><head>"
