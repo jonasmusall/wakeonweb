@@ -1,6 +1,36 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <time.h>
 #include "credentials.h"
+
+// UPDATE CACHE_ETAG EVERY TIME A CACHEABLE RESPONSE BODY IS MODIFIED OR ADDED!
+// cacheable URIs: "/", "/main.css", "/favicon.svg"
+#define CACHE_ETAG "0001"
+#define CACHE_CONTROL "max-age=604800, immutable" // one week
+
+const char dayName0[] PROGMEM = "Mon";
+const char dayName1[] PROGMEM = "Tue";
+const char dayName2[] PROGMEM = "Wed";
+const char dayName3[] PROGMEM = "Thu";
+const char dayName4[] PROGMEM = "Fri";
+const char dayName5[] PROGMEM = "Sat";
+const char dayName6[] PROGMEM = "Sun";
+const char monthName00[] PROGMEM = "Jan";
+const char monthName01[] PROGMEM = "Feb";
+const char monthName02[] PROGMEM = "Mar";
+const char monthName03[] PROGMEM = "Apr";
+const char monthName04[] PROGMEM = "May";
+const char monthName05[] PROGMEM = "Jun";
+const char monthName06[] PROGMEM = "Jul";
+const char monthName07[] PROGMEM = "Aug";
+const char monthName08[] PROGMEM = "Sep";
+const char monthName09[] PROGMEM = "Oct";
+const char monthName10[] PROGMEM = "Nov";
+const char monthName11[] PROGMEM = "Dec";
+const char *const dayTable[] = {dayName0, dayName1, dayName2, dayName3, dayName4, dayName5, dayName6};
+const char *const monthTable[] =
+    {monthName00, monthName01, monthName02, monthName03, monthName04, monthName05, monthName06, monthName07, monthName08, monthName09, monthName10, monthName11};
+char cacheDate[] = "DDD, dd MMM yyyy hh:mm:ss GMT";
 
 ESP8266WebServer server(80);
 const char bodyRoot[] PROGMEM =
@@ -32,6 +62,36 @@ const char bodyFavicon[] PROGMEM =
 boolean pwr = false;
 boolean ssh = false;
 
+void setupClock()
+{
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.println("Synchrozining time");
+  time_t now = time(nullptr);
+  while (now < 1)
+  {
+    delay(1000);
+    now = time(nullptr);
+  }
+  Serial.println("Synchronized");
+
+  // write GMT date and time to cacheDate in HTTP Date format
+  // "<day-name>, <day> <month-name> <year> <hour>:<minute>:<second> GMT"
+  struct tm timeInfo;
+  gmtime_r(&now, &timeInfo);
+  sprintf(
+    cacheDate,
+    "%s, %02d %s %04d %02d:%02d:%02d GMT",
+    dayTable[timeInfo.tm_wday - 1],
+    timeInfo.tm_mday,
+    monthTable[timeInfo.tm_mon],
+    timeInfo.tm_year + 1900,
+    timeInfo.tm_hour,
+    timeInfo.tm_min,
+    timeInfo.tm_sec
+  );
+  Serial.println(cacheDate);
+}
+
 void setup()
 {
   pinMode(D7, INPUT);
@@ -51,6 +111,9 @@ void setup()
   Serial.println();
   Serial.println("Connected");
   Serial.println(WiFi.localIP());
+
+  // date and time is used to generate "Date" header a single time at startup
+  setupClock();
 
   server.on("/", handleRoot);
   server.on("/main.css", handleMainStylesheet);
@@ -78,21 +141,52 @@ void loop()
   server.handleClient();
 }
 
+bool validateCache()
+{
+  if (server.header("If-None-Match") == CACHE_ETAG)
+  {
+    server.send(304, "*/*", "");
+    return true;
+  }
+  return false;
+}
+
+void enableCaching()
+{
+  server.sendHeader("Date", cacheDate, false);
+  server.sendHeader("ETag", CACHE_ETAG, false);
+  server.sendHeader("Cache-Control", CACHE_CONTROL, false);
+}
+
+void disableCaching()
+{
+  server.sendHeader("Cache-Control", "no-store");
+}
+
 void handleRoot()
 {
-  // TODO: enable caching
+  if (validateCache())
+  {
+    return;
+  }
+  enableCaching();
   server.send(200, "text/html", bodyRoot);
 }
 
 void handleMainStylesheet()
 {
-  // TODO: enable caching
+  if (validateCache())
+  {
+    return;
+  }
+  enableCaching();
   server.send(200, "text/css", bodyMainStylesheet);
 }
 
 void handleStateStylesheet()
 {
   // TODO: authentication
+  disableCaching();
   if (pwr)
   {
     if (ssh)
@@ -119,12 +213,18 @@ void handleStateStylesheet()
 
 void handleFavicon()
 {
+  if (validateCache())
+  {
+    return;
+  }
+  enableCaching();
   server.send(200, "image/svg+xml", bodyFavicon);
 }
 
 void handleTrigger()
 {
   // TODO: authentication
+  disableCaching();
   if (pwr)
   {
     server.send(409, "text/plain", "409 Conflict\n\nServer is already powered on.");
@@ -138,6 +238,7 @@ void handleTrigger()
 void handleSshNotification()
 {
   // TODO: authentication
+  disableCaching();
   ssh = true;
   server.send(200, "text/plain", "200 OK\n\nSSH service marked as ready.");
 }
