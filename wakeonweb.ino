@@ -7,7 +7,7 @@
 
 // UPDATE CACHE_ETAG EVERY TIME A CACHEABLE RESPONSE BODY IS MODIFIED OR ADDED!
 // cacheable URIs: "/", "/main.css", "/favicon.svg", "/favicon.ico"
-#define CACHE_ETAG "0002"
+#define CACHE_ETAG "0003"
 #define CACHE_CONTROL "max-age=604800, immutable" // one week
 
 const char dayName0[] PROGMEM = "Mon";
@@ -184,22 +184,22 @@ void handleStateStylesheet()
   {
     if (ssh)
     {
-      server.send(200, "text/css", ".pwroff{display:none;}.sshno{display:none;}");
+      server.send(200, "text/css", ".state.unknown{display:none!important;}.pwron{display:initial;}.sshyes{display:initial;}");
     }
     else
     {
-      server.send(200, "text/css", ".pwroff{display:none;}.sshyes{display:none;}");
+      server.send(200, "text/css", ".state.unknown{display:none!important;}.pwron{display:initial;}.sshno{display:initial;}");
     }
   }
   else
   {
     if (ssh)
     {
-      server.send(200, "text/css", ".pwron{display:none;}.sshno{display:none;}");
+      server.send(200, "text/css", ".unknown{display:none!important;}.pwroff{display:initial;}.sshyes{display:initial;}");
     }
     else
     {
-      server.send(200, "text/css", ".pwron{display:none;}.sshyes{display:none;}");
+      server.send(200, "text/css", ".unknown{display:none!important;}.pwroff{display:initial;}.sshno{display:initial;}");
     }
   }
 }
