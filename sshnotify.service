@@ -4,6 +4,7 @@ After=sshd.service
 
 [Service]
 ExecStart=curl 10.0.0.123/s
+#ExecStart=curl --user username:password 10.0.0.123/s
 
 [Install]
 WantedBy=multi-user.target
