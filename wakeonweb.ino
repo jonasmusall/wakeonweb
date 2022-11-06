@@ -146,7 +146,7 @@ bool authenticateSite()
 #if defined(SITE_USER) && defined(SITE_PASS)
   if (!server.authenticate(SITE_USER, SITE_PASS))
   {
-    server.requestAuthentication();
+    server.requestAuthentication(BASIC_AUTH, (const char *)__null, "401 Unauthorized");
     return false;
   }
 #endif
