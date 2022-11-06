@@ -63,16 +63,15 @@ void setupClock()
   struct tm timeInfo;
   gmtime_r(&now, &timeInfo);
   sprintf(
-    cacheDate,
-    "%s, %02d %s %04d %02d:%02d:%02d GMT",
-    dayTable[timeInfo.tm_wday - 1],
-    timeInfo.tm_mday,
-    monthTable[timeInfo.tm_mon],
-    timeInfo.tm_year + 1900,
-    timeInfo.tm_hour,
-    timeInfo.tm_min,
-    timeInfo.tm_sec
-  );
+      cacheDate,
+      "%s, %02d %s %04d %02d:%02d:%02d GMT",
+      dayTable[timeInfo.tm_wday - 1],
+      timeInfo.tm_mday,
+      monthTable[timeInfo.tm_mon],
+      timeInfo.tm_year + 1900,
+      timeInfo.tm_hour,
+      timeInfo.tm_min,
+      timeInfo.tm_sec);
   Serial.println(cacheDate);
 }
 
@@ -310,7 +309,6 @@ void handleNotFound()
 {
   server.send(404, "text/plain", "404 Not Found");
 }
-
 
 /* ---- Actual power-on function ---- */
 
