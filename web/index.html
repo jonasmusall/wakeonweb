@@ -10,11 +10,14 @@
     <title>Server Control</title>
   </head>
   <body>
-    <h1>Server Control</h1>
-    <p>Power state: <span class="state pwroff">OFF</span><span class="state pwron">ON</span><span class="state unknown">?</span></p>
-    <p>SSH ready: <span class="state sshno">NO</span><span class="state sshyes">YES</span><span class="state unknown">?</span></p>
-    <form action="/t">
-      <input class="pwroff" type="submit" value="Power on"><input class="pwron unknown" type="submit" value="Power on" disabled>
-    </form>
+    <header id="login-warning" class="state unknown">You are not logged in!</header>
+    <main>
+      <h1>Server Control</h1>
+      <p>Power state: <span class="state pwroff">OFF</span><span class="state pwron">ON</span><span class="state unknown">?</span></p>
+      <p>SSH ready: <span class="state sshno">NO</span><span class="state sshyes">YES</span><span class="state unknown">?</span></p>
+      <form action="/t">
+        <input class="pwroff" type="submit" value="Power on"><input class="pwron unknown" type="submit" value="Power on" disabled>
+      </form>
+    </main>
   </body>
 </html>

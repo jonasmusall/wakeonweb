@@ -1,16 +1,30 @@
 html {
-  min-height: 100%;
+  min-height: 100vh;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   background: #0d0d0d;
 }
 
 body {
-  height: fit-content;
   margin: 0px;
-  padding: 1.2em 1.5em 1.5em 1.5em;
   font: 1em sans-serif;
+}
+
+#login-warning {
+  display: block;
+  height: 4em;
+  margin-bottom: -2em;
+  padding: 0px;
+  background: #b30000;
+  color: white;
+  line-height: 2em;
+  text-align: center;
+  border-radius: 1em;
+}
+
+main {
+  padding: 1.2em 1.5em 1.5em 1.5em;
   background: white;
   border-radius: 1em;
 }

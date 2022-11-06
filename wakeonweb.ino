@@ -7,7 +7,7 @@
 
 // UPDATE CACHE_ETAG EVERY TIME A CACHEABLE RESPONSE BODY IS MODIFIED OR ADDED!
 // cacheable URIs: "/", "/main.css", "/favicon.svg", "/favicon.ico"
-#define CACHE_ETAG "0003"
+#define CACHE_ETAG "0004"
 #define CACHE_CONTROL "max-age=604800, immutable" // one week
 
 const char dayName0[] PROGMEM = "Mon";
