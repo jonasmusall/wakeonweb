@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <time.h>
+// define WIFI_SSID and WIFI_PASS, optionally SITE_USER and SITE_PASS in credentials.h
 #include "credentials.h"
 #include "web.h"
 
@@ -140,6 +141,18 @@ void disableCaching()
   server.sendHeader("Cache-Control", "no-store");
 }
 
+bool authenticateSite()
+{
+#if defined(SITE_USER) && defined(SITE_PASS)
+  if (!server.authenticate(SITE_USER, SITE_PASS))
+  {
+    server.requestAuthentication();
+    return false;
+  }
+#endif
+  return true;
+}
+
 void handleRoot()
 {
   if (validateCache())
@@ -162,7 +175,10 @@ void handleMainStylesheet()
 
 void handleStateStylesheet()
 {
-  // TODO: authentication
+  if (!authenticateSite())
+  {
+    return;
+  }
   disableCaching();
   if (pwr)
   {
@@ -211,7 +227,10 @@ void handleFaviconIco()
 
 void handleTrigger()
 {
-  // TODO: authentication
+  if (!authenticateSite())
+  {
+    return;
+  }
   disableCaching();
   if (pwr)
   {
