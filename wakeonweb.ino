@@ -146,7 +146,7 @@ void handleRoot()
     return;
   }
   enableCaching();
-  server.send(200, "text/html", WEB_INDEX_HTML);
+  server.send(200, "text/html", bodyRoot);
 }
 
 void handleMainStylesheet()
@@ -156,7 +156,7 @@ void handleMainStylesheet()
     return;
   }
   enableCaching();
-  server.send(200, "text/css", WEB_MAIN_CSS);
+  server.send(200, "text/css", bodyMainCss);
 }
 
 void handleStateStylesheet()
@@ -194,7 +194,7 @@ void handleFavicon()
     return;
   }
   enableCaching();
-  server.send(200, "image/svg+xml", WEB_FAVICON_SVG);
+  server.send(200, "image/svg+xml", bodyFaviconSvg);
 }
 
 void handleTrigger()

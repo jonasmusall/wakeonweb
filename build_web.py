@@ -1,13 +1,12 @@
 from typing import List, Tuple
-import os
 import re
 
 
-ignore = [
-  'web/t/index.html',
-  'web/state.css'
-]
-binary = [
+# entries: (defineName, path, binary)
+files: List[Tuple[str, str, bool]] = [
+  ('bodyRoot', 'web/index.html', False),
+  ('bodyMainCss', 'web/main.css', False),
+  ('bodyFaviconSvg', 'web/favicon.svg', False)
 ]
 bytesPerLine = 20
 
@@ -16,18 +15,9 @@ reDefineName = re.compile(r'[/\.]')
 reLinebreak = re.compile(r'\r?\n\s*')
 
 
-files: List[Tuple[str, bool]] = []
-for root, dirs, filenames in os.walk('web'):
-  for filename in filenames:
-    path = os.path.join(root, filename)
-    if path not in ignore:
-      files.append((path, path in binary))
-
-
 stringContents: List[Tuple[str, str]] = []
 byteContents: List[Tuple[str, bytes]] = []
-for path, bin in files:
-  defineName = reDefineName.sub('_', path.upper())
+for defineName, path, bin in files:
   print(defineName, f'binary={bin}')
 
   if bin:
