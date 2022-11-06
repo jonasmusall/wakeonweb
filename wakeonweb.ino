@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <time.h>
-// define WIFI_SSID and WIFI_PASS, optionally SITE_USER and SITE_PASS in credentials.h
+// define WIFI_SSID and WIFI_PASS, optionally SITE_USER, SITE_PASS, SSH_USER and SSH_PASS (not your actual SSH credentials!) in credentials.h
 #include "credentials.h"
 #include "web.h"
 
@@ -153,6 +153,18 @@ bool authenticateSite()
   return true;
 }
 
+bool authenticateSshNotification()
+{
+#if defined(SSH_USER) && defined(SSH_PASS)
+  if (!server.authenticate(SSH_USER, SSH_PASS))
+  {
+    server.requestAuthentication(BASIC_AUTH, (const char *)__null, "401 Unauthorized");
+    return false;
+  }
+#endif
+  return true;
+}
+
 void handleRoot()
 {
   if (validateCache())
@@ -244,7 +256,10 @@ void handleTrigger()
 
 void handleSshNotification()
 {
-  // TODO: authentication
+  if (!authenticateSshNotification())
+  {
+    return;
+  }
   disableCaching();
   ssh = true;
   server.send(200, "text/plain", "200 OK\n\nSSH service marked as ready.");
