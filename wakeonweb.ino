@@ -10,6 +10,8 @@
 #define CACHE_ETAG "0004"
 #define CACHE_CONTROL "max-age=604800, immutable" // one week
 
+/* ---- String constants for HTTP Date format construction ---- */
+
 const char dayName0[] PROGMEM = "Mon";
 const char dayName1[] PROGMEM = "Tue";
 const char dayName2[] PROGMEM = "Wed";
@@ -34,11 +36,16 @@ const char *const monthTable[] =
     {monthName00, monthName01, monthName02, monthName03, monthName04, monthName05, monthName06, monthName07, monthName08, monthName09, monthName10, monthName11};
 char cacheDate[] = "DDD, dd MMM yyyy hh:mm:ss GMT";
 
+/* ---- Runtime variables ---- */
+
 ESP8266WebServer server(80);
 
 boolean pwr = false;
 boolean ssh = false;
 
+/* ---- Setup functions ---- */
+
+// Gets the current real time from the internet
 void setupClock()
 {
   configTime(0, 0, "pool.ntp.org", "time.nist.gov");
@@ -69,6 +76,7 @@ void setupClock()
   Serial.println(cacheDate);
 }
 
+// Setup entry point
 void setup()
 {
   pinMode(D7, INPUT);
@@ -77,8 +85,9 @@ void setup()
 
   Serial.begin(115200);
 
+  // connect to WiFi
   Serial.println("Connecting");
-  // WIFI_SSID and WIFI_PASS definitions in "credentials.h"
+  // put WIFI_SSID and WIFI_PASS definitions in "credentials.h"
   WiFi.begin(WIFI_SSID, WIFI_PASS);
 
   while (WiFi.status() != WL_CONNECTED)
@@ -92,6 +101,7 @@ void setup()
   // date and time is used to generate "Date" header a single time at startup
   setupClock();
 
+  // server setup
   server.on("/", handleRoot);
   server.on("/main.css", handleMainStylesheet);
   server.on("/state.css", handleStateStylesheet);
@@ -104,6 +114,9 @@ void setup()
   Serial.println("Web server started");
 }
 
+/* ---- Main program loop ---- */
+
+// Main program loop
 void loop()
 {
   // wait for clients while checking for power
@@ -119,8 +132,12 @@ void loop()
   server.handleClient();
 }
 
+/* ---- Web server helper functions ---- */
+
+// Validates the cache of a browser using the ETag
 bool validateCache()
 {
+  // if the header is missing, server.header(name) will return an empty string
   if (server.header("If-None-Match") == CACHE_ETAG)
   {
     server.send(304, "*/*", "");
@@ -129,6 +146,7 @@ bool validateCache()
   return false;
 }
 
+// Sets the headers required to tell browsers to cache the next response
 void enableCaching()
 {
   server.sendHeader("Date", cacheDate, false);
@@ -136,14 +154,17 @@ void enableCaching()
   server.sendHeader("Cache-Control", CACHE_CONTROL, false);
 }
 
+// Sets the Cache-Control header to prevent caching of the next response
 void disableCaching()
 {
   server.sendHeader("Cache-Control", "no-store");
 }
 
+// Checks the authentication for a website request (if credentials were configured)
 bool authenticateSite()
 {
 #if defined(SITE_USER) && defined(SITE_PASS)
+  // put SITE_USER and SITE_PASS definitions in "credentials.h"
   if (!server.authenticate(SITE_USER, SITE_PASS))
   {
     server.requestAuthentication(BASIC_AUTH, (const char *)__null, "401 Unauthorized");
@@ -153,9 +174,11 @@ bool authenticateSite()
   return true;
 }
 
+// Checks the authentication for an 'SSH-ready' notification request (if credentials were configured)
 bool authenticateSshNotification()
 {
 #if defined(SSH_USER) && defined(SSH_PASS)
+  // put SSH_USER and SSH_PASS definitions in "credentials.h" (not your actual SSH credentials!)
   if (!server.authenticate(SSH_USER, SSH_PASS))
   {
     server.requestAuthentication(BASIC_AUTH, (const char *)__null, "401 Unauthorized");
@@ -165,6 +188,9 @@ bool authenticateSshNotification()
   return true;
 }
 
+/* ---- Web server request handling functions ---- */
+
+// Handles request for "/" (cacheable)
 void handleRoot()
 {
   if (validateCache())
@@ -175,6 +201,7 @@ void handleRoot()
   server.send(200, "text/html", bodyRoot);
 }
 
+// Handles requests for "/main.css" (cacheable)
 void handleMainStylesheet()
 {
   if (validateCache())
@@ -185,6 +212,7 @@ void handleMainStylesheet()
   server.send(200, "text/css", bodyMainCss);
 }
 
+// Handles requests for "/state.css" (not cacheable, auth required, carries all server state information)
 void handleStateStylesheet()
 {
   if (!authenticateSite())
@@ -192,6 +220,14 @@ void handleStateStylesheet()
     return;
   }
   disableCaching();
+
+  /*
+   State display works by overwriting the "display" property of the elements we want to show or hide.
+   Per default (in "/main.css"), elements with class "unknown" are shown while all others are hidden.
+   With "/state.css" available, we want to hide all class="unknown" elements and show the ones that
+   represent the current server state. Note that when pwr == true, we only hide class="state unknown"
+   elements, because the disabled "Power on" button should still be shown.
+   */
   if (pwr)
   {
     if (ssh)
@@ -216,6 +252,7 @@ void handleStateStylesheet()
   }
 }
 
+// Handles requests for "/favicon.svg" (cacheable)
 void handleFaviconSvg()
 {
   if (validateCache())
@@ -226,6 +263,7 @@ void handleFaviconSvg()
   server.send(200, "image/svg+xml", bodyFaviconSvg);
 }
 
+// Handles requests for "/favicon.ico" (cacheable)
 void handleFaviconIco()
 {
   if (validateCache())
@@ -237,6 +275,7 @@ void handleFaviconIco()
   server.send(200, "image/x-icon", bodyFaviconIco, sizeof(bodyFaviconIco));
 }
 
+// Handles requests for "/t" (not cacheable, auth required, triggers power-on)
 void handleTrigger()
 {
   if (!authenticateSite())
@@ -254,6 +293,7 @@ void handleTrigger()
   server.send(302, "text/plain", "302 Found\n\nServer powered on successfully.");
 }
 
+// Handles requests for "/s" (not cacheable, auth required, marks the SSH service as ready)
 void handleSshNotification()
 {
   if (!authenticateSshNotification())
@@ -265,11 +305,16 @@ void handleSshNotification()
   server.send(200, "text/plain", "200 OK\n\nSSH service marked as ready.");
 }
 
+// Handles requests to unknown URIs by replying with a 404 error
 void handleNotFound()
 {
   server.send(404, "text/plain", "404 Not Found");
 }
 
+
+/* ---- Actual power-on function ---- */
+
+// Triggers the power button of the connected mainboard
 void powerOn()
 {
   digitalWrite(D8, HIGH);
