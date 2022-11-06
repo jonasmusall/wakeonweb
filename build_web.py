@@ -6,7 +6,8 @@ import re
 files: List[Tuple[str, str, bool]] = [
   ('bodyRoot', 'web/index.html', False),
   ('bodyMainCss', 'web/main.css', False),
-  ('bodyFaviconSvg', 'web/favicon.svg', False)
+  ('bodyFaviconSvg', 'web/favicon.svg', False),
+  ('bodyFaviconIco', 'web/favicon.ico', True)
 ]
 bytesPerLine = 20
 

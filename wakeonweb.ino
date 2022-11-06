@@ -5,8 +5,8 @@
 #include "web.h"
 
 // UPDATE CACHE_ETAG EVERY TIME A CACHEABLE RESPONSE BODY IS MODIFIED OR ADDED!
-// cacheable URIs: "/", "/main.css", "/favicon.svg"
-#define CACHE_ETAG "0001"
+// cacheable URIs: "/", "/main.css", "/favicon.svg", "/favicon.ico"
+#define CACHE_ETAG "0002"
 #define CACHE_CONTROL "max-age=604800, immutable" // one week
 
 const char dayName0[] PROGMEM = "Mon";
@@ -94,7 +94,8 @@ void setup()
   server.on("/", handleRoot);
   server.on("/main.css", handleMainStylesheet);
   server.on("/state.css", handleStateStylesheet);
-  server.on("/favicon.svg", handleFavicon);
+  server.on("/favicon.svg", handleFaviconSvg);
+  server.on("/favicon.ico", handleFaviconIco);
   server.on("/t", handleTrigger);
   server.on("/s", handleSshNotification);
   server.onNotFound(handleNotFound);
@@ -187,7 +188,7 @@ void handleStateStylesheet()
   }
 }
 
-void handleFavicon()
+void handleFaviconSvg()
 {
   if (validateCache())
   {
@@ -195,6 +196,17 @@ void handleFavicon()
   }
   enableCaching();
   server.send(200, "image/svg+xml", bodyFaviconSvg);
+}
+
+void handleFaviconIco()
+{
+  if (validateCache())
+  {
+    return;
+  }
+  enableCaching();
+  // binary data needs to be sent with size explicitly specified
+  server.send(200, "image/x-icon", bodyFaviconIco, sizeof(bodyFaviconIco));
 }
 
 void handleTrigger()
