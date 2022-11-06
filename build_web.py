@@ -12,7 +12,6 @@ files: List[Tuple[str, str, bool]] = [
 bytesPerLine = 20
 
 
-reDefineName = re.compile(r'[/\.]')
 reLinebreak = re.compile(r'\r?\n\s*')
 
 
