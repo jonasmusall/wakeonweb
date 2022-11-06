@@ -1,12 +1,13 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <time.h>
+// define WIFI_SSID and WIFI_PASS, optionally SITE_USER, SITE_PASS, SSH_USER and SSH_PASS (not your actual SSH credentials!) in credentials.h
 #include "credentials.h"
 #include "web.h"
 
 // UPDATE CACHE_ETAG EVERY TIME A CACHEABLE RESPONSE BODY IS MODIFIED OR ADDED!
 // cacheable URIs: "/", "/main.css", "/favicon.svg", "/favicon.ico"
-#define CACHE_ETAG "0002"
+#define CACHE_ETAG "0003"
 #define CACHE_CONTROL "max-age=604800, immutable" // one week
 
 const char dayName0[] PROGMEM = "Mon";
@@ -140,6 +141,30 @@ void disableCaching()
   server.sendHeader("Cache-Control", "no-store");
 }
 
+bool authenticateSite()
+{
+#if defined(SITE_USER) && defined(SITE_PASS)
+  if (!server.authenticate(SITE_USER, SITE_PASS))
+  {
+    server.requestAuthentication(BASIC_AUTH, (const char *)__null, "401 Unauthorized");
+    return false;
+  }
+#endif
+  return true;
+}
+
+bool authenticateSshNotification()
+{
+#if defined(SSH_USER) && defined(SSH_PASS)
+  if (!server.authenticate(SSH_USER, SSH_PASS))
+  {
+    server.requestAuthentication(BASIC_AUTH, (const char *)__null, "401 Unauthorized");
+    return false;
+  }
+#endif
+  return true;
+}
+
 void handleRoot()
 {
   if (validateCache())
@@ -162,28 +187,31 @@ void handleMainStylesheet()
 
 void handleStateStylesheet()
 {
-  // TODO: authentication
+  if (!authenticateSite())
+  {
+    return;
+  }
   disableCaching();
   if (pwr)
   {
     if (ssh)
     {
-      server.send(200, "text/css", ".pwroff{display:none;}.sshno{display:none;}");
+      server.send(200, "text/css", ".state.unknown{display:none!important;}.pwron{display:initial;}.sshyes{display:initial;}");
     }
     else
     {
-      server.send(200, "text/css", ".pwroff{display:none;}.sshyes{display:none;}");
+      server.send(200, "text/css", ".state.unknown{display:none!important;}.pwron{display:initial;}.sshno{display:initial;}");
     }
   }
   else
   {
     if (ssh)
     {
-      server.send(200, "text/css", ".pwron{display:none;}.sshno{display:none;}");
+      server.send(200, "text/css", ".unknown{display:none!important;}.pwroff{display:initial;}.sshyes{display:initial;}");
     }
     else
     {
-      server.send(200, "text/css", ".pwron{display:none;}.sshyes{display:none;}");
+      server.send(200, "text/css", ".unknown{display:none!important;}.pwroff{display:initial;}.sshno{display:initial;}");
     }
   }
 }
@@ -211,7 +239,10 @@ void handleFaviconIco()
 
 void handleTrigger()
 {
-  // TODO: authentication
+  if (!authenticateSite())
+  {
+    return;
+  }
   disableCaching();
   if (pwr)
   {
@@ -225,7 +256,10 @@ void handleTrigger()
 
 void handleSshNotification()
 {
-  // TODO: authentication
+  if (!authenticateSshNotification())
+  {
+    return;
+  }
   disableCaching();
   ssh = true;
   server.send(200, "text/plain", "200 OK\n\nSSH service marked as ready.");

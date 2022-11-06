@@ -20,18 +20,34 @@ h1 {
 }
 
 .state {
+  display: none;
   padding: 0.2em 0.8em;
-  background: #6c6c6c;
-  color: white;
+  background: #dfdfdf;
+  color: #595959;
   border-radius: 1em;
+}
+
+.state.unknown {
+  display: initial;
+  padding: 0.2em 1.2em;
 }
 
 .state.pwron,
 .state.sshyes {
   background: #008a3c;
+  color: white;
 }
 
 .state.pwroff,
 .state.sshno {
   background: #b30000;
+  color: white;
+}
+
+input {
+  display: none;
+}
+
+input.unknown {
+  display: initial;
 }

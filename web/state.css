@@ -1,7 +1,11 @@
-.pwron {
-  display: none;
+.state.unknown {
+  display: none !important;
 }
 
-.sshno {
-  display: none;
+.pwron {
+  display: initial;
+}
+
+.sshyes {
+  display: initial;
 }
