@@ -2,7 +2,7 @@
 #include <ESP8266WebServer.h>
 #include <time.h>
 #include "credentials.h"
-#include "web.c"
+#include "web.h"
 
 // UPDATE CACHE_ETAG EVERY TIME A CACHEABLE RESPONSE BODY IS MODIFIED OR ADDED!
 // cacheable URIs: "/", "/main.css", "/favicon.svg"

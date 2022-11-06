@@ -31,9 +31,7 @@ for defineName, path, bin in files:
       stringContents.append((defineName, content))
 
 
-with open('web.c', 'w') as f:
-  print('#include <pgmspace.h>', file=f)
-
+with open('web.h', 'w') as f:
   for defineName, content in stringContents:
     print(f'const char {defineName}[] PROGMEM = "{content}";', file=f)
 
