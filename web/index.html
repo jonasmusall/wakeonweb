@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/main.css">
+    <link rel="stylesheet" href="/state.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="48x48">
+    <title>Server Control</title>
+  </head>
+  <body>
+    <h1>Server Control</h1>
+    <p>Power state: <span class="state pwroff">OFF</span><span class="state pwron">ON</span></p>
+    <p>SSH ready: <span class="state sshno">NO</span><span class="state sshyes">YES</span></p>
+    <form action="/t">
+      <input class="pwroff" type="submit" value="Power on"><input class="pwron" type="submit" value="Power on" disabled>
+    </form>
+  </body>
+</html>
